@@ -11,9 +11,10 @@ import numpy as np
 
 
 class EyeDataset(Dataset):
-    def __init__(self, pkl_file, root_dir, debug=False):
+    def __init__(self, pkl_file, root_dir, is_train=True, debug=False):
         self.root_dir = root_dir
         self.debug = debug
+        self.is_train = is_train
         img_pose_pairs = pkl_load(pkl_file)
 
         pose_channels = 9
@@ -60,16 +61,17 @@ class EyeDataset(Dataset):
     def __len__(self):
         return self.size
 
-    def _transform(self, img_r, img_e, sz=64, interp=Image.BICUBIC):
+    def _transform(self, img_r, img_e, sz=64, flip=0.5, interp=Image.BICUBIC):
         # Resize
         resize = transforms.Resize(sz, interpolation=interp)
         img_r = resize(img_r)
         img_e = resize(img_e)
 
-        # Random horizontal flipping
-        if np.random.random() > 0.5:
-            img_r = TF.hflip(img_r)
-            img_e = TF.hflip(img_e)
+        # Random horizontal flipping, only for train
+        if self.is_train:
+            if np.random.random() > flip:
+                img_r = TF.hflip(img_r)
+                img_e = TF.hflip(img_e)
 
         if not self.debug:
             transforms_list = [
