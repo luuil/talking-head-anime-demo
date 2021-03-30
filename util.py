@@ -4,6 +4,7 @@ import PIL.Image
 import numpy
 import torch
 from torch import Tensor
+import pickle
 
 
 def is_power2(x):
@@ -96,3 +97,18 @@ def extract_numpy_image_from_filelike(file):
 
 def create_parent_dir(file_name):
     os.makedirs(os.path.dirname(file_name), exist_ok=True)
+
+
+def read_pil_img_rgb(file):
+    assert os.path.exists(file)
+    return PIL.Image.open(file).convert('RGB')
+
+
+def pkl_save(content, file):
+    with open(file, 'wb') as f:
+        pickle.dump(content, f, pickle.HIGHEST_PROTOCOL)
+
+
+def pkl_load(file):
+    with open(file, 'rb') as f:
+        return pickle.load(f)
